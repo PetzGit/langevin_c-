@@ -1,0 +1,2 @@
+add_executable(run_box_gaussian run_box_gaussian.cpp)
+target_link_libraries(run_box_gaussian PRIVATE cldiff)
