@@ -47,17 +47,17 @@ void Sampler::step() {
         return;
     }
 }
-Eigen::VectorXd Sampler::proposeState(const Eigen::VectorXd& x, const Eigen::LLT<Eigen::MatrixXd>& llt) const {
+Eigen::VectorXd Sampler::proposeState(const Eigen::VectorXd& x, const Eigen::LLT<Eigen::MatrixXd>& llt, const double beta) const {
     const Eigen::VectorXd div_c_eps = polyhedron_.barrierHessianDivergence(llt, x);
-    const Eigen::VectorXd grad_term = -1.0 * llt.solve(objective_.gradient(x));
+    const Eigen::VectorXd grad_term = -1.0 * llt.solve(objective_.gradient(x))/ beta;
     return grad_term + div_c_eps;
 }
-Proposal Sampler::propose(const Eigen::VectorXd& x, const Eigen::VectorXd& m_x, const double h, const Eigen::MatrixXd& L) const {
+Proposal Sampler::propose(const Eigen::VectorXd& x, const Eigen::VectorXd& m_x, const double h, const Eigen::MatrixXd& L, const double beta) const {
     const int d = m_x.size();
     Eigen::VectorXd x_i(d);
     for (int i{0}; i < d; i++) {
         x_i(i) = rng_.normal();
     }
     const Eigen::VectorXd eta = L.triangularView<Eigen::Lower>().transpose().solve(x_i);
-    return Proposal{x + h * m_x + std::sqrt(2.0 * h) * eta, x_i};
+    return Proposal{x + h * m_x + std::sqrt(2.0 * h / beta) * eta, x_i};
 }

@@ -17,8 +17,8 @@ public:
   Eigen::MatrixXd run(int n);
 
 private:
-  Eigen::VectorXd proposeState(const Eigen::VectorXd& x, const Eigen::LLT<Eigen::MatrixXd>& llt) const;
-  Proposal propose(const Eigen::VectorXd& x, const Eigen::VectorXd& m_x, double h, const Eigen::MatrixXd& L) const;
+  Eigen::VectorXd proposeState(const Eigen::VectorXd& x, const Eigen::LLT<Eigen::MatrixXd>& llt, const double beta) const;
+  Proposal propose(const Eigen::VectorXd& x, const Eigen::VectorXd& m_x, double h, const Eigen::MatrixXd& L, const double beta) const;
 
   const Objective& objective_;
   const Polyhedron& polyhedron_;

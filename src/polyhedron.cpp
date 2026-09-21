@@ -29,7 +29,6 @@ Eigen::MatrixXd Polyhedron::barrierHessian(const Eigen::VectorXd& x, double eps)
   }
   return res + eps*Eigen::MatrixXd::Identity(n,n);
 }
-//todo take as input cholesky and matrix. need to recompute cholesky in sampler, so this is very inefficient.
 Eigen::VectorXd Polyhedron::barrierHessianDivergence(const Eigen::LLT<Eigen::MatrixXd> llt, const Eigen::VectorXd& x) const {
   Eigen::VectorXd matrix_res = Eigen::MatrixXd::Zero(A_.cols(),1);
   Eigen::VectorXd s = b_ - A_ * x;
