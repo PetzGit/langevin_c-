@@ -31,6 +31,13 @@ add_library(cldiff
     src/rng.cpp
     src/sampler.cpp
     src/target.cpp
+    src/optimiser.cpp
+    src/heston/characteristic_function.cpp
+    src/heston/cumulants.cpp
+    src/heston/cos_pricer.cpp
+    src/heston/black_scholes.cpp
+    src/heston/market_data.cpp
+    src/heston/heston_objective.cpp
 )
 target_include_directories(cldiff PUBLIC include)
 target_link_libraries(cldiff PUBLIC Eigen3::Eigen)

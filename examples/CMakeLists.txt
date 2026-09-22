@@ -1,2 +1,17 @@
 add_executable(run_box_gaussian run_box_gaussian.cpp)
 target_link_libraries(run_box_gaussian PRIVATE cldiff)
+
+add_executable(run_optimiser_nonconvex run_optimiser_nonconvex.cpp)
+target_link_libraries(run_optimiser_nonconvex PRIVATE cldiff)
+
+add_executable(test_pricer test_pricer.cpp)
+target_link_libraries(test_pricer PRIVATE cldiff)
+
+add_executable(test_black_scholes test_black_scholes.cpp)
+target_link_libraries(test_black_scholes PRIVATE cldiff)
+
+add_executable(test_heston_objective test_heston_objective.cpp)
+target_link_libraries(test_heston_objective PRIVATE cldiff)
+
+add_executable(test_heston_calibration test_heston_calibration.cpp)
+target_link_libraries(test_heston_calibration PRIVATE cldiff)

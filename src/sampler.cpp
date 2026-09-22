@@ -24,9 +24,9 @@ void Sampler::step() {
     const Eigen::MatrixXd H_eps = polyhedron_.barrierHessian(x_, eps_);
     const Eigen::LLT<Eigen::MatrixXd> llt(H_eps);
     const Eigen::MatrixXd L = llt.matrixL();
-    const Eigen::VectorXd m_x = proposeState(x_, llt);
+    const Eigen::VectorXd m_x = proposeState(x_, llt,1);
     const double h = rng_.uniform() * h_max_;
-    const Proposal proposal1 = propose(x_, m_x, h, L);
+    const Proposal proposal1 = propose(x_, m_x, h, L,1);
     const Eigen::VectorXd y = proposal1.Y;
     if (!polyhedron_.contains(y)) {
         return;
@@ -37,7 +37,7 @@ void Sampler::step() {
     const Eigen::MatrixXd H_y_eps = polyhedron_.barrierHessian(y, eps_);
     const Eigen::LLT<Eigen::MatrixXd> llt_y(H_y_eps);
     const Eigen::MatrixXd L_y = llt_y.matrixL();
-    const Eigen::VectorXd m_y = proposeState(y, llt_y);
+    const Eigen::VectorXd m_y = proposeState(y, llt_y, 1);
     const Eigen::VectorXd diff = x_ - (y + h * m_y);
     const double quad2 = diff.dot(H_y_eps * diff);
     const double log_det2 = -2.0 * L_y.diagonal().array().log().sum();

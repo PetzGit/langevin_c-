@@ -2,7 +2,7 @@
 #include <Eigen/Cholesky>
 #include <stdexcept>
 #include <cmath>
-
+#include <iostream>
 Optimiser::Optimiser(const Objective& objective, const Polyhedron& polyhedron, Rng& rng, Eigen::MatrixXd x_0,
                       int r_rate, int chain_num, int run_num, double h, double eps)
     : objective_(objective), polyhedron_(polyhedron), rng_(rng), x_(std::move(x_0)),
@@ -50,8 +50,7 @@ Eigen::VectorXd Optimiser::updateChain(const Eigen::VectorXd& x) const {
     n_i(i) = rng_.normal();
   }
   const Eigen::VectorXd eta = llt.matrixL().transpose().solve(n_i);
-
-  return x + h_ * (grad_term + div_c_eps / beta) + std::sqrt(2.0 * h_ / beta) * eta;
+  return x + h_ * (grad_term + div_c_eps * beta) + std::sqrt(2.0 * h_ * beta) * eta;
 }
 
 void Optimiser::step() {
@@ -85,6 +84,7 @@ void Optimiser::resample() {
       best_ind = i;
     }
   }
+  std::cout <<"Best so far: " << step_num_ << " : " << f_min << "\n";
   evals /= evals.sum();
 
   Eigen::VectorXd cum_sum(N);
