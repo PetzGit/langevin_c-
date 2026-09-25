@@ -4,9 +4,8 @@ Barrier-Hessian ("Dikin metric") Langevin sampling and optimization on
 polyhedra, plus a Heston stochastic-volatility calibration pipeline built on
 top of it as an application. C++17, Eigen-based, CMake build.
 
-This README covers the original (non-momentum) sampler/optimiser and the
-Heston module only. There's a second, newer sampler/optimiser pair
-(kinetic/momentum-based) also in this repo, documented separately.
+Implements the method of Chok & Petzinna (2026), *Constrained Dikin–Langevin
+diffusion for polyhedra* -- see [Reference](#reference) below.
 
 ## Layout
 
@@ -115,3 +114,9 @@ make -j
 
 Fetches Eigen 3.4.0 and Catch2 at configure time. All targets link against
 the `cldiff` static library, built with `-Wall -Wextra -Werror`.
+
+## Reference
+
+Chok, J. & Petzinna, D. (2026). Constrained Dikin–Langevin diffusion for
+polyhedra. *IMA Journal of Applied Mathematics*, 91(2), 210-228.
+https://doi.org/10.1093/imamat/hxag012
