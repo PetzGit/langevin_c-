@@ -21,7 +21,6 @@ src/                      implementations, mirrors include/cldiff/
 examples/                 buildable demos, one executable each (see below)
 data_loader/              yfinance -> CSV pipeline for real SPX option-chain data
 tests/                    Catch2 scaffolding (not currently wired into the build)
-build/                    CMake build directory
 ```
 
 ## Core: Polyhedron / Sampler / Optimiser
