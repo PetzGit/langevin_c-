@@ -15,3 +15,9 @@ target_link_libraries(test_heston_objective PRIVATE cldiff)
 
 add_executable(test_heston_calibration test_heston_calibration.cpp)
 target_link_libraries(test_heston_calibration PRIVATE cldiff)
+
+add_executable(heston_reference_recovery heston/harness.cpp)
+target_link_libraries(heston_reference_recovery PRIVATE cldiff)
+
+add_executable(heston_spx_calibration heston/spx_calibration.cpp)
+target_link_libraries(heston_spx_calibration PRIVATE cldiff)

@@ -1,13 +1,29 @@
 #include "cldiff/heston/cos_pricer.hpp"
 #include <cmath>
+#include <algorithm>
+
+// Truncation half-width is capped so it can never outgrow what term_num terms
+// can resolve. Without this, parameter draws with large c_2 (e.g. low kappa,
+// high xi/v0 -- well within a typical calibration search box) blow the range
+// out to tens of units; chi_i's exp(b_z) term then requires cancellation far
+// beyond what 128 terms (or double precision) can deliver, and cos_pricer
+// silently returns garbage (negative or absurdly large prices) instead of an
+// error. 6 was chosen empirically: it reproduces unclamped prices to ~1e-10
+// for every well-behaved parameter set tested (the density beyond 6 is
+// already negligible there), while eliminating blow-ups for extreme draws.
+constexpr double kMaxHalfWidth = 6.0;
+
 Range make_range(Cumulants& cum, double L) {
-  double width = L*std::sqrt(cum.c_2);
+  double width = std::min(L*std::sqrt(cum.c_2), kMaxHalfWidth);
   return Range{cum.c_1 - width, cum.c_1 + width};
 }
 //todo fix the pow thing
-double cos_pricer(const CharacteristicHeston& phi, const Range& r, double strike, double T, double rate, int term_num, double s_0) {
+double cos_pricer(const CharacteristicHeston& phi, const Range& r, double strike, double T, double rate, int term_num, double s_0, double q) {
   const double L = r.upper - r.lower;
-  const double x = std::log(s_0) + rate*T - std::log(strike);
+  // Forward uses the risk-neutral drift (rate - q); discounting below still
+  // uses the pure rate -- these are two different roles a single "rate"
+  // can't correctly serve once the underlying pays a dividend/carries a cost.
+  const double x = std::log(s_0) + (rate - q)*T - std::log(strike);
   const double a_z = r.lower + x;
   const double b_z = r.upper + x;
   double sum = 0;

@@ -1,3 +1,6 @@
 build/
 *.o
 *.log
+data_loader/data_venv/
+__pycache__/
+*.pyc

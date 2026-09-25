@@ -32,12 +32,20 @@ add_library(cldiff
     src/sampler.cpp
     src/target.cpp
     src/optimiser.cpp
+    src/optimiser_parallel_annealing.cpp
+    src/kinetic_dikin.cpp
+    src/tempered_objective.cpp
+    src/sampler_momentum.cpp
+    src/optimiser_momentum.cpp
+    src/optimiser_momentum_parallel_annealing.cpp
     src/heston/characteristic_function.cpp
     src/heston/cumulants.cpp
     src/heston/cos_pricer.cpp
     src/heston/black_scholes.cpp
     src/heston/market_data.cpp
     src/heston/heston_objective.cpp
+    src/heston/feller.cpp
+    src/heston/corrected_log_space_heston_objective.cpp
 )
 target_include_directories(cldiff PUBLIC include)
 target_link_libraries(cldiff PUBLIC Eigen3::Eigen)

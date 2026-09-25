@@ -37,8 +37,11 @@ Eigen::VectorXd Optimiser::genTemp(int run_num) const {
   return temp;
 }
 
-Eigen::VectorXd Optimiser::updateChain(const Eigen::VectorXd& x) const {
-  const double beta = temp_(step_num_);
+double Optimiser::chainBeta(int /*chain_index*/) const {
+  return temp_(step_num_);
+}
+
+Eigen::VectorXd Optimiser::updateChain(const Eigen::VectorXd& x, double beta) const {
   const Eigen::MatrixXd H_eps = polyhedron_.barrierHessian(x, eps_);
   const Eigen::LLT<Eigen::MatrixXd> llt(H_eps);
   const Eigen::VectorXd div_c_eps = polyhedron_.barrierHessianDivergence(llt, x);
@@ -55,7 +58,7 @@ Eigen::VectorXd Optimiser::updateChain(const Eigen::VectorXd& x) const {
 
 void Optimiser::step() {
   for (int i = 0; i < chain_num_; i++) {
-    Eigen::VectorXd proposal = updateChain(x_.col(i));
+    Eigen::VectorXd proposal = updateChain(x_.col(i), chainBeta(i));
     if (!polyhedron_.contains(proposal)) {
       continue;
     }

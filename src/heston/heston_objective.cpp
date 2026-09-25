@@ -3,9 +3,23 @@
 #include "cldiff/heston/cumulants.hpp"
 #include "cldiff/heston/cos_pricer.hpp"
 #include "cldiff/heston/market_data.hpp"
+#include <cmath>
 #include <iostream>
-HestonObjective::HestonObjective(const MarketData& market_data, int term_num, double L, double lambda_feller)
-: market_data_(market_data), term_num_(term_num), L_(L), lambda_feller_(lambda_feller) {}
+HestonObjective::HestonObjective(const MarketData& market_data, int term_num, double L, double lambda_feller,
+                                  double feller_smooth_scale)
+: market_data_(market_data), term_num_(term_num), L_(L), lambda_feller_(lambda_feller),
+  feller_smooth_scale_(feller_smooth_scale) {}
+
+namespace {
+// Numerically-stable softplus(x/scale)*scale, the standard smooth
+// replacement for max(0,x): converges to max(0,x) as scale->0, matches it
+// closely for |x| >> scale, and is differentiable everywhere (no kink at
+// x=0). Stable form avoids overflow in exp() for large |x|/scale.
+double smoothRelu(double x, double scale) {
+  const double z = x / scale;
+  return scale * (std::max(z, 0.0) + std::log1p(std::exp(-std::abs(z))));
+}
+}  // namespace
 
 double HestonObjective::value(const Eigen::VectorXd& params) const {
   CharacteristicHeston phi(params);
@@ -13,13 +27,14 @@ double HestonObjective::value(const Eigen::VectorXd& params) const {
   const std::map <double, std::vector<Quote>>& quote_map = market_data_.quotesByMaturity();
   double r = market_data_.r();
   double s0 = market_data_.S0();
+  double q = market_data_.q();
   for (const auto& [key, quotes] : quote_map) {
     Cumulants cum = cumulants(phi, key);
     Range range = make_range(cum, L_);
     for (const Quote& quote: quotes) {
       double K = quote.K;
-      double price = cos_pricer(phi, range, K, key, r, term_num_, s0);
-      BlackSchole iv_calc(s0, K, key, r);
+      double price = cos_pricer(phi, range, K, key, r, term_num_, s0, q);
+      BlackSchole iv_calc(s0, K, key, r, q);
       double calc_iv = iv_calc.impliedVol(price);
       if (!std::isfinite(quote.market_iv) || !std::isfinite(calc_iv)) {
         loss += quote.weight;
@@ -28,7 +43,7 @@ double HestonObjective::value(const Eigen::VectorXd& params) const {
       loss += (calc_iv - quote.market_iv)*(calc_iv - quote.market_iv)*quote.weight;
     }
   }
-  return loss + lambda_feller_*std::max(0.0, params(2)*params(2) - 2*params(1)*params(0));
+  return loss + lambda_feller_*smoothRelu(params(2)*params(2) - 2*params(1)*params(0), feller_smooth_scale_);
 }
 //todo implement autodiff (this requires changing type signatures everywhere current imp
 //is finite differences, which is numerically unstable somewhat and costly

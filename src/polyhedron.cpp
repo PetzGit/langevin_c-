@@ -12,6 +12,8 @@ Polyhedron::Polyhedron(Eigen::MatrixXd A, Eigen::VectorXd b)
 int Polyhedron::size() const {
   return A_.cols();
 }
+const Eigen::MatrixXd& Polyhedron::A() const { return A_; }
+const Eigen::VectorXd& Polyhedron::b() const { return b_; }
 bool Polyhedron::contains(const Eigen::VectorXd& x) const {
   if(x.size() != A_.cols()) {
     throw std::invalid_argument("Dimensions of x must match dimensions of polyhedron");

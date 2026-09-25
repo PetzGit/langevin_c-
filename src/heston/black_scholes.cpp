@@ -11,22 +11,22 @@ double normal_pdf(double x) {
   return inv_sqrt_2pi * std::exp(-0.5 * x*x);
 }
 
-BlackSchole::BlackSchole(double S0, double K, double T, double r)
-: S0_(S0), K_(K), T_(T), r_(r) {}
+BlackSchole::BlackSchole(double S0, double K, double T, double r, double q)
+: S0_(S0), K_(K), T_(T), r_(r), q_(q) {}
 
 double BlackSchole::price(double sigma) const {
-  double d_1 = (std::log(S0_/K_) + (r_ + sigma*sigma*0.5)*T_)/(sigma*std::sqrt(T_));
+  double d_1 = (std::log(S0_/K_) + (r_ - q_ + sigma*sigma*0.5)*T_)/(sigma*std::sqrt(T_));
   double d_2 = d_1 - sigma*std::sqrt(T_);
-  return S0_*normal_cdf(d_1) - K_*std::exp(-r_*T_)*normal_cdf(d_2);
+  return S0_*std::exp(-q_*T_)*normal_cdf(d_1) - K_*std::exp(-r_*T_)*normal_cdf(d_2);
 }
 
 double BlackSchole::vega (double sigma) const {
-  double d_1 = (std::log(S0_/K_) + (r_ + sigma*sigma*0.5)*T_)/(sigma*std::sqrt(T_));
-  return S0_*std::sqrt(T_)*normal_pdf(d_1);
+  double d_1 = (std::log(S0_/K_) + (r_ - q_ + sigma*sigma*0.5)*T_)/(sigma*std::sqrt(T_));
+  return S0_*std::exp(-q_*T_)*std::sqrt(T_)*normal_pdf(d_1);
 }
 double BlackSchole::impliedVol(double C_mkt) const {
-  const double intrinsic = std::max(S0_ - K_*std::exp(-r_*T_), 0.0);
-  const double upper_bound = S0_;
+  const double intrinsic = std::max(S0_*std::exp(-q_*T_) - K_*std::exp(-r_*T_), 0.0);
+  const double upper_bound = S0_*std::exp(-q_*T_);
   if (C_mkt < intrinsic || C_mkt > upper_bound || !std::isfinite(C_mkt)) {
     return std::numeric_limits<double>::quiet_NaN();
   }
